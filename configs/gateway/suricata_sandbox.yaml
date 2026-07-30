@@ -1,0 +1,15 @@
+# Suricata Configuration Snippet (Ubuntu Gateway - /etc/suricata/suricata.yaml)
+vars:
+  address-groups:
+    HOME_NET: "[10.0.0.0/24]"
+    EXTERNAL_NET: "!$HOME_NET"
+
+af-packet:
+  - interface: ens19
+    cluster-type: cluster_flow
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json

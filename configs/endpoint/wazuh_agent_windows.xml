@@ -1,0 +1,5 @@
+<!-- OSSEC Config Snippet (Windows 10 FLARE VM) - Ingesting Sysmon Logs -->
+  <localfile>
+    <location>Microsoft-Windows-Sysmon/Operational</location>
+    <log_format>eventchannel</log_format>
+  </localfile>

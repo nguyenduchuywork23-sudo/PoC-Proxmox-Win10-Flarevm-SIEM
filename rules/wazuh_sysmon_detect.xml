@@ -1,0 +1,13 @@
+<!-- Custom Rule: Detect Obfuscated PowerShell Download (Event ID 1) -->
+<group name="windows, sysmon, custom_detection,">
+  <rule id="100001" level="12">
+    <if_group>sysmon_event1</if_group>
+    <match>Invoke-WebRequest</match>
+    <match>-Hidden|-NoP|-Exec Bypass</match>
+    <description>CRITICAL [SOC Tier 2]: Suspicious PowerShell execution downloading remote payload.</description>
+    <mitre>
+      <id>T1059.001</id>
+      <id>T1105</id>
+    </mitre>
+  </rule>
+</group>
