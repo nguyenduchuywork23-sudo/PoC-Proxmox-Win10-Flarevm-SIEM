@@ -1,6 +1,6 @@
 # Proxmox-Malware-Sandbox-SOC
 
-Kien truc & Gioi thieu du an.
+Kiến Trúc @ giới thiệu dự án
 
 ## Enterprise-Grade Architecture & Traffic Flow
 *(The diagram below renders automatically on GitHub via Mermaid.js)*
