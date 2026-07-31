@@ -101,3 +101,8 @@ Content           : <html>...<title>INetSim default HTML page</title>...</html>.
 *Wazuh tổng hợp cảnh báo Suricata NIDS, phát hiện truy vấn `testmyids.com` và User-Agent `BlackSun` kết nối tới INetSim sinkhole.*
 
 ![Wazuh Suricata Alert](images/wazuh_suricata_alert.jpg)
+
+## 4. Minh chứng Cơ chế Chuyển hướng DNS và Bypass NCSI
+**Mục tiêu:** Khẳng định máy ảo Windows được cấu hình trỏ Default Gateway về tường lửa và truy vấn máy chủ DNS ngoại mạng, kiểm chứng khả năng can thiệp lưu lượng ở tầng mạng của iptables.
+
+![Cấu hình IP Windows](images/windows_network_config.png)
