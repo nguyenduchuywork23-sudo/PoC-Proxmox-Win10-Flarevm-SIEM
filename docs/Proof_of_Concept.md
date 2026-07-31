@@ -57,11 +57,9 @@ Content           : <html>...<title>INetSim default HTML page</title>...</html>
 ### 3.1. Endpoint Detection (Sysmon via Wazuh)
 *Wazuh successfully detected the creation of a suspicious local user account (`evil_hacker`) via Sysmon Event ID 1.*
 
-*(Thêm ảnh chụp màn hình alert Sysmon vào đây)*
-`![Wazuh Sysmon Alert](images/wazuh_sysmon_alert.png)`
+![Wazuh Sysmon Alert](images/wazuh_sysmon_alert.png)
 
 ### 3.2. Network Detection (Suricata via Wazuh)
 *Wazuh aggregated Suricata NIDS alerts, detecting both the `testmyids.com` trigger and the suspicious `BlackSun` User-Agent hitting the INetSim sinkhole.*
 
-*(Thêm ảnh chụp màn hình alert Suricata vào đây)*
-`![Wazuh Suricata Alert](images/wazuh_suricata_alert.png)`
+![Wazuh Suricata Alert](images/wazuh_suricata_alert.png)
