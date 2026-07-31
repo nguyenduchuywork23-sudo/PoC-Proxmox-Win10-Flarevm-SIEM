@@ -1,38 +1,38 @@
 # Proxmox-Malware-Sandbox-SOC
 
-Kiến Trúc & giới thiệu dự án
+Kiến trúc và Mô tả Dự án
 
-## Enterprise-Grade Architecture & Traffic Flow
-*(The diagram below renders automatically on GitHub via Mermaid.js)*
+## Kiến trúc Hệ thống và Luồng Dữ liệu
+*(Sơ đồ luồng dữ liệu được hiển thị tự động qua Mermaid.js)*
 
 ```mermaid
 graph TD
-    subgraph "Proxmox Datacenter (HP-malware)"
+    subgraph "Trung tâm dữ liệu Proxmox (HP-malware)"
         
-        subgraph "Node 1: HP-server"
-            A[VM 101: win10pro-mandiant-flare] -->|Sysmon Logs| C(Wazuh Agent)
+        subgraph "Nút 1: HP-server"
+            A[VM 101: win10pro-mandiant-flare] -->|Nhật ký Sysmon| C(Wazuh Agent)
         end
 
-        subgraph "Node 2: dell-server"
-            subgraph "Network & Deception Layer"
+        subgraph "Nút 2: dell-server"
+            subgraph "Lớp Mạng và Sinkhole"
                 D{VM 100: Ubuntu-Firewall}
-                E(INetSim - Fake C2)
+                E(INetSim - Máy chủ C2 Sinkhole)
                 F(Suricata NIDS)
                 P(tcpdump PCAP)
                 
-                A -- "Gateway Traffic (ens19)" --> D
+                A -- "Lưu lượng Gateway (ens19)" --> D
                 D -- "PREROUTING REDIRECT" --> E
-                E -. "Fake MSFT NCSI" .-> A
-                D -- "Deep Packet Inspection" --> F
-                D -- "Packet Capture" --> P
+                E -. "Phản hồi MSFT NCSI" .-> A
+                D -- "Phân tích gói tin (DPI)" --> F
+                D -- "Thu thập gói tin" --> P
                 F -->|eve.json| G(Wazuh Agent)
             end
 
-            subgraph "SIEM SOC Layer"
+            subgraph "Lớp SIEM SOC"
                 H((VM 103: Wazuh-Server))
-                C -- "Log Stream (Port 1514)" --> H
-                G -- "Log Stream (Port 1514)" --> H
-                D -- "FORWARD DROP Kill-Switch" --> H
+                C -- "Luồng nhật ký (Cổng 1514)" --> H
+                G -- "Luồng nhật ký (Cổng 1514)" --> H
+                D -- "Chính sách FORWARD DROP (Kill-Switch)" --> H
             end
         end
     end
@@ -144,12 +144,9 @@ Tải tệp thi hành Sysmon và cài đặt với file cấu hình được ch�
 sysmon64.exe -accepteula -i sysmon_config.xml
 ```
 
-#### 3.2. Cấu hình Bypass NCSI
-Sử dụng script có sẵn hoặc ghi đè trực tiếp vào tệp `C:\Windows\System32\drivers\etc\hosts`:
-```plaintext
-10.0.0.1 www.msftncsi.com
-10.0.0.1 dns.msftncsi.com
-```
+#### 3.2. Cấu hình Bypass NCSI (Giả mạo Internet)
+*Lưu ý: Không cần cấu hình file `hosts` trên Windows.*
+Tính năng vượt qua kiểm tra mạng của Windows (NCSI) được xử lý hoàn toàn tự động ở lớp Gateway. Kịch bản `scripts/02_fake_ncsi_bypass.sh` đã tạo sẵn các tệp tin phản hồi HTTP giả mạo (`connecttest.txt` và `ncsi.txt`) trên máy chủ INetSim. Kết hợp với việc iptables chuyển hướng toàn bộ truy vấn DNS (Cổng 53), máy ảo Windows sẽ tự động nhận được kết quả phân giải DNS giả từ tường lửa và bị đánh lừa rằng nó đang có kết nối Internet bình thường.
 
 #### 3.3. Cài đặt Wazuh Agent
 Cài đặt tác nhân Wazuh cho Windows. Thay thế cấu hình mặc định bằng tệp định tuyến log Sysmon:

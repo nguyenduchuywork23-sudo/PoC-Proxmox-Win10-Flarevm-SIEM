@@ -1,11 +1,11 @@
-# Proof of Concept: Validation & Execution
+# Minh chứng khái niệm: Xác thực và Thực thi
 
-This document provides real-world validation logs from the Proxmox environment, proving that the Air-Gapped routing, Telemetry pipeline, and Detection Rules are functioning securely.
+Tài liệu này cung cấp các bản ghi nhật ký xác thực từ môi trường Proxmox, chứng minh rằng định tuyến Air-Gapped, luồng dữ liệu Telemetry và các Quy tắc phát hiện đang hoạt động.
 
-## 1. Network Isolation & Telemetry Pipeline Validation
-**Goal:** Prove that the Windows 10 victim machine (`10.0.0.2`) can successfully bypass the `iptables DROP` kill-switch **exclusively** for SIEM telemetry (Port 1514), while remaining completely air-gapped from the internet.
+## 1. Xác thực Cô lập mạng và Luồng dữ liệu Telemetry
+**Mục tiêu:** Chứng minh rằng máy ảo Windows 10 (`10.0.0.2`) có thể vượt qua quy tắc `iptables DROP` dành riêng cho việc gửi dữ liệu SIEM (Cổng 1514), trong khi bị cô lập khỏi môi trường internet.
 
-**Execution on Windows 10 (FLARE-VM):**
+**Thực thi trên Windows 10 (FLARE-VM):**
 ```powershell
 PS C:\Windows\system32 > Get-NetTCPConnection -RemoteAddress 192.168.1.244
 
@@ -14,10 +14,10 @@ LocalAddress        LocalPort RemoteAddress       RemotePort State       Applied
 10.0.0.2            54374     192.168.1.244       1514       Established Internet
 ```
 
-## 2. Endpoint Telemetry Generation (Sysmon EID 5)
-**Goal:** Prove that Sysmon is actively monitoring the endpoint, capturing deep process lifecycle events (creation/termination), and formatting them for the Wazuh Agent.
+## 2. Tạo dữ liệu Telemetry từ Endpoint (Sysmon EID 5)
+**Mục tiêu:** Chứng minh rằng Sysmon đang giám sát endpoint, thu thập các sự kiện vòng đời tiến trình (tạo/kết thúc) và định dạng chúng cho Wazuh Agent.
 
-**Execution on Windows 10 (FLARE-VM):**
+**Thực thi trên Windows 10 (FLARE-VM):**
 ```powershell
 PS C:\Windows\system32 > Get-WinEvent -LogName "Microsoft-Windows-Sysmon/Operational" -MaxEvents 1 | Select-Object TimeCreated, Message | Format-List
 
@@ -31,11 +31,11 @@ Message     : Process terminated:
               User: NT AUTHORITY\SYSTEM
 ```
 
-## 3. SIEM Detection & Alerting (Wazuh & Suricata)
-**Goal:** Prove that the SIEM (Wazuh) successfully aggregates and correlates logs from both the endpoint (Sysmon) and the network gateway (Suricata), triggering alerts for malicious activities.
+## 3. SIEM Phát hiện và Cảnh báo (Wazuh & Suricata)
+**Mục tiêu:** Chứng minh rằng SIEM (Wazuh) thu thập và tương quan nhật ký từ cả endpoint (Sysmon) và gateway mạng (Suricata), kích hoạt cảnh báo cho các hoạt động mạng.
 
-**Execution on Windows 10 (FLARE-VM):**
-*(Errors removed for brevity - demonstrating privilege discovery, local user creation, and simulated C2 traffic)*
+**Thực thi trên Windows 10 (FLARE-VM):**
+*(Lược bỏ phần lỗi - minh họa hoạt động truy vấn đặc quyền, tạo người dùng cục bộ và mô phỏng luồng dữ liệu C2)*
 
 ```powershell
 PS C:\Windows\system32 > whoami /priv
@@ -86,18 +86,18 @@ StatusDescription : OK
 Content           : <html>...<title>INetSim default HTML page</title>...</html>...
 ```
 
-### 3.1. Endpoint Detection (Sysmon via Wazuh)
-*Wazuh successfully detected suspicious endpoint activities via Sysmon, including privilege discovery and malicious local user creation.*
+### 3.1. Phát hiện trên Endpoint (Sysmon qua Wazuh)
+*Wazuh phát hiện các hoạt động endpoint thông qua Sysmon, bao gồm việc truy vấn đặc quyền và tạo người dùng cục bộ.*
 
-**Alert 1: Privilege Discovery Activity**
-*Detected execution of `whoami /priv` (Sysmon Event ID 1).*
+**Cảnh báo 1: Hoạt động Truy vấn Đặc quyền**
+*Phát hiện thực thi lệnh `whoami /priv` (Sysmon Event ID 1).*
 ![Wazuh Sysmon Alert - Discovery](images/wazuh_sysmon_alert_2.jpg)
 
-**Alert 2: Malicious User Creation**
-*Detected the creation of a suspicious local user account (`evil_hacker`) via Sysmon Event ID 1.*
+**Cảnh báo 2: Tạo Người dùng**
+*Phát hiện hoạt động tạo tài khoản người dùng cục bộ (`evil_hacker`) qua Sysmon Event ID 1.*
 ![Wazuh Sysmon Alert - User Add](images/wazuh_sysmon_alert_1.jpg)
 
-### 3.2. Network Detection (Suricata via Wazuh)
-*Wazuh aggregated Suricata NIDS alerts, detecting both the `testmyids.com` trigger and the suspicious `BlackSun` User-Agent hitting the INetSim sinkhole.*
+### 3.2. Phát hiện trên Mạng (Suricata qua Wazuh)
+*Wazuh tổng hợp cảnh báo Suricata NIDS, phát hiện truy vấn `testmyids.com` và User-Agent `BlackSun` kết nối tới INetSim sinkhole.*
 
 ![Wazuh Suricata Alert](images/wazuh_suricata_alert.jpg)
