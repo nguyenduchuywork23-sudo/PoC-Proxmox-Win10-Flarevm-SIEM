@@ -184,3 +184,11 @@ chown wazuh:wazuh /var/ossec/etc/rules/local_rules.xml
 ```bash
 systemctl restart wazuh-manager
 ```
+
+---
+
+## 5. Báo cáo Xác thực Hệ thống (Proof of Concept)
+
+Để đánh giá chi tiết các bản ghi nhật ký (logs) thực tế chứng minh khả năng cô lập mạng (Network Isolation), cơ chế chuyển hướng phân giải tên miền (DNS Hijacking), cũng như năng lực phát hiện và cảnh báo của hệ thống SIEM (Wazuh & Suricata), vui lòng truy cập tài liệu minh chứng kỹ thuật:
+
+📄 **[Xem Tài liệu Minh chứng Khái niệm (Proof of Concept)](docs/Proof_of_Concept.md)**
