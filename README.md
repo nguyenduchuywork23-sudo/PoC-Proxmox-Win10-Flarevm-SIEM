@@ -3,7 +3,6 @@
 Kiến trúc và Mô tả Dự án
 
 ## Kiến trúc Hệ thống và Luồng Dữ liệu
-*(Sơ đồ luồng dữ liệu được hiển thị tự động qua Mermaid.js)*
 
 ```mermaid
 graph TD
