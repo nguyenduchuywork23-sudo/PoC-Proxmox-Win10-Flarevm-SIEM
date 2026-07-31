@@ -1,0 +1,12 @@
+[Unit]
+Description=Malware Sandbox Dashcam (TCPDump 24/7)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/tcpdump -i any -C 50 -W 10 -Z root -w /home/rootadmin/pcaps/malware_raw.pcap
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
