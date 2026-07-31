@@ -191,4 +191,4 @@ systemctl restart wazuh-manager
 
 Để đánh giá chi tiết các bản ghi nhật ký (logs) thực tế chứng minh khả năng cô lập mạng (Network Isolation), cơ chế chuyển hướng phân giải tên miền (DNS Hijacking), cũng như năng lực phát hiện và cảnh báo của hệ thống SIEM (Wazuh & Suricata), vui lòng truy cập tài liệu minh chứng kỹ thuật:
 
-📄 **[Xem Tài liệu Minh chứng Khái niệm (Proof of Concept)](docs/Proof_of_Concept.md)**
+📄 **[Xem Tài liệu Minh chứng (Proof of Concept)](docs/Proof_of_Concept.md)**
