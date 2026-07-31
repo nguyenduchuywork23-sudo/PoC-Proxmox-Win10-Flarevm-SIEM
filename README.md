@@ -139,9 +139,13 @@ systemctl restart wazuh-agent
 ### 3. Triển khai Nút Endpoint (Windows 10 - VM 101)
 
 #### 3.1. Cấu hình Mạng (Network Adapter)
-Cấu hình IP tĩnh cho máy ảo Windows để đảm bảo mọi lưu lượng mạng đều bắt buộc phải đi qua tường lửa (Ubuntu Gateway). Việc thiết lập DNS thành `8.8.8.8` (hoặc bất kỳ IP nào khác) để kiểm chứng tính minh bạch của kiến trúc: iptables trên tường lửa sẽ tự động chặn và bẻ lái mọi truy vấn DNS về INetSim sinkhole mà máy ảo không hề hay biết.
+Cấu hình giao diện mạng tĩnh trên máy ảo Windows với các thông số sau:
+- IP Address: `10.0.0.2`
+- Subnet Mask: `255.255.255.0`
+- Default Gateway: `10.0.0.1` (Trỏ về máy ảo Ubuntu)
+- Preferred DNS Server: `8.8.8.8` (Hoặc bất kỳ địa chỉ IPv4 nào)
 
-![Cấu hình IP Windows](docs/images/windows_network_config.png)
+Cấu hình Default Gateway định tuyến lưu lượng mạng lớp 3 sang Ubuntu Gateway. Cấu hình DNS Server ngoại mạng được sử dụng để chứng minh cơ chế iptables NAT chuyển tiếp (REDIRECT) lưu lượng cổng 53 udp/tcp sang dịch vụ cục bộ.
 
 #### 3.2. Thiết lập Sysmon
 Tải tệp thi hành Sysmon và cài đặt với file cấu hình được chỉ định:
@@ -149,9 +153,9 @@ Tải tệp thi hành Sysmon và cài đặt với file cấu hình được ch�
 sysmon64.exe -accepteula -i sysmon_config.xml
 ```
 
-#### 3.3. Cấu hình Bypass NCSI (Giả mạo Internet)
-*Lưu ý: Không cần cấu hình file `hosts` trên Windows.*
-Tính năng vượt qua kiểm tra mạng của Windows (NCSI) được xử lý hoàn toàn tự động ở lớp Gateway. Kịch bản `scripts/02_fake_ncsi_bypass.sh` đã tạo sẵn các tệp tin phản hồi HTTP giả mạo (`connecttest.txt` và `ncsi.txt`) trên máy chủ INetSim. Kết hợp với việc iptables chuyển hướng toàn bộ truy vấn DNS (Cổng 53), máy ảo Windows sẽ tự động nhận được kết quả phân giải DNS giả từ tường lửa và bị đánh lừa rằng nó đang có kết nối Internet bình thường.
+#### 3.3. Cấu hình Bypass NCSI
+*Lưu ý: Không yêu cầu chỉnh sửa tệp `hosts` trên hệ điều hành Windows.*
+Cơ chế Network Connectivity Status Indicator (NCSI) của Windows được đáp ứng ở Gateway. Kịch bản `scripts/02_fake_ncsi_bypass.sh` khởi tạo các tệp tĩnh (`connecttest.txt` và `ncsi.txt`) trong thư mục web của INetSim. Khi hệ thống Windows khởi tạo truy vấn phân giải DNS cho mục đích NCSI, quy tắc iptables PREROUTING chuyển tiếp gói tin cổng 53 đến INetSim. INetSim phản hồi truy vấn DNS bằng địa chỉ IP `10.0.0.1` và phục vụ tệp văn bản qua giao thức HTTP cổng 80, thỏa mãn điều kiện kiểm tra kết nối mạng của tiến trình NCSI.
 
 #### 3.4. Cài đặt Wazuh Agent
 Cài đặt tác nhân Wazuh cho Windows. Thay thế cấu hình mặc định bằng tệp định tuyến log Sysmon:
