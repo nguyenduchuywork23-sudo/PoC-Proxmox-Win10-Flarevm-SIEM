@@ -35,7 +35,7 @@ Message     : Process terminated:
 **Mục tiêu:** Chứng minh rằng SIEM (Wazuh) thu thập và tương quan nhật ký từ cả endpoint (Sysmon) và gateway mạng (Suricata), kích hoạt cảnh báo cho các hoạt động mạng.
 
 **Thực thi trên Windows 10 (FLARE-VM):**
-*(Lược bỏ phần lỗi - minh họa hoạt động truy vấn đặc quyền, tạo người dùng cục bộ và mô phỏng luồng dữ liệu C2)*
+*(minh họa hoạt động truy vấn đặc quyền, tạo người dùng cục bộ và mô phỏng luồng dữ liệu C2)*
 
 ```powershell
 PS C:\Windows\system32 > whoami /priv
