@@ -30,3 +30,38 @@ Message     : Process terminated:
               Image: C:\Windows\servicing\TrustedInstaller.exe
               User: NT AUTHORITY\SYSTEM
 ```
+
+## 3. SIEM Detection & Alerting (Wazuh & Suricata)
+**Goal:** Prove that the SIEM (Wazuh) successfully aggregates and correlates logs from both the endpoint (Sysmon) and the network gateway (Suricata), triggering alerts for malicious activities.
+
+**Execution on Windows 10 (FLARE-VM):**
+*(Errors removed for brevity - demonstrating local user creation and simulated C2 traffic)*
+
+```powershell
+PS C:\Windows\system32 > net user evil_hacker P@ssw0rd123 /add
+The command completed successfully.
+
+PS C:\Windows\system32 > curl -UseBasicParsing http://testmyids.com
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <html>...<title>INetSim default HTML page</title>...</html>
+
+PS C:\Windows\system32 > curl -UseBasicParsing -UserAgent "BlackSun" http://10.0.2.1
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <html>...<title>INetSim default HTML page</title>...</html>
+```
+
+### 3.1. Endpoint Detection (Sysmon via Wazuh)
+*Wazuh successfully detected the creation of a suspicious local user account (`evil_hacker`) via Sysmon Event ID 1.*
+
+*(Thêm ảnh chụp màn hình alert Sysmon vào đây)*
+`![Wazuh Sysmon Alert](images/wazuh_sysmon_alert.png)`
+
+### 3.2. Network Detection (Suricata via Wazuh)
+*Wazuh aggregated Suricata NIDS alerts, detecting both the `testmyids.com` trigger and the suspicious `BlackSun` User-Agent hitting the INetSim sinkhole.*
+
+*(Thêm ảnh chụp màn hình alert Suricata vào đây)*
+`![Wazuh Suricata Alert](images/wazuh_suricata_alert.png)`
