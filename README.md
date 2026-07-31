@@ -6,32 +6,32 @@ Kiến trúc và Mô tả Dự án
 
 ```mermaid
 graph TD
-    subgraph "Trung tâm dữ liệu Proxmox (HP-malware)"
+    subgraph "Proxmox Datacenter (HP-malware)"
         
-        subgraph "Nút 1: HP-server"
-            A[VM 101: win10pro-mandiant-flare] -->|Nhật ký Sysmon| C(Wazuh Agent)
+        subgraph "Node 1: HP-server"
+            A[VM 101: win10pro-mandiant-flare] -->|Sysmon Logs| C(Wazuh Agent)
         end
 
-        subgraph "Nút 2: dell-server"
-            subgraph "Lớp Mạng và Sinkhole"
+        subgraph "Node 2: dell-server"
+            subgraph "Network & Deception Layer"
                 D{VM 100: Ubuntu-Firewall}
-                E(INetSim - Máy chủ C2 Sinkhole)
+                E(INetSim - Fake C2)
                 F(Suricata NIDS)
                 P(tcpdump PCAP)
                 
-                A -- "Lưu lượng Gateway (ens19)" --> D
+                A -- "Gateway Traffic (ens19)" --> D
                 D -- "PREROUTING REDIRECT" --> E
-                E -. "Phản hồi MSFT NCSI" .-> A
-                D -- "Phân tích gói tin (DPI)" --> F
-                D -- "Thu thập gói tin" --> P
+                E -. "Fake MSFT NCSI" .-> A
+                D -- "Deep Packet Inspection" --> F
+                D -- "Packet Capture" --> P
                 F -->|eve.json| G(Wazuh Agent)
             end
 
-            subgraph "Lớp SIEM SOC"
+            subgraph "SIEM SOC Layer"
                 H((VM 103: Wazuh-Server))
-                C -- "Luồng nhật ký (Cổng 1514)" --> H
-                G -- "Luồng nhật ký (Cổng 1514)" --> H
-                D -- "Chính sách FORWARD DROP (Kill-Switch)" --> H
+                C -- "Log Stream (Port 1514)" --> H
+                G -- "Log Stream (Port 1514)" --> H
+                D -- "FORWARD DROP Kill-Switch" --> H
             end
         end
     end
