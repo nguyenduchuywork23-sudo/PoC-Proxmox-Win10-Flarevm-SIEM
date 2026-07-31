@@ -35,9 +35,41 @@ Message     : Process terminated:
 **Goal:** Prove that the SIEM (Wazuh) successfully aggregates and correlates logs from both the endpoint (Sysmon) and the network gateway (Suricata), triggering alerts for malicious activities.
 
 **Execution on Windows 10 (FLARE-VM):**
-*(Errors removed for brevity - demonstrating local user creation and simulated C2 traffic)*
+*(Errors removed for brevity - demonstrating privilege discovery, local user creation, and simulated C2 traffic)*
 
 ```powershell
+PS C:\Windows\system32 > whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+Privilege Name                            Description                                                        State
+========================================= ================================================================== ========
+SeAssignPrimaryTokenPrivilege             Replace a process level token                                      Disabled
+SeIncreaseQuotaPrivilege                  Adjust memory quotas for a process                                 Disabled
+SeSecurityPrivilege                       Manage auditing and security log                                   Disabled
+SeTakeOwnershipPrivilege                  Take ownership of files or other objects                           Disabled
+SeLoadDriverPrivilege                     Load and unload device drivers                                     Disabled
+SeSystemProfilePrivilege                  Profile system performance                                         Disabled
+SeSystemtimePrivilege                     Change the system time                                             Disabled
+SeProfileSingleProcessPrivilege           Profile single process                                             Disabled
+SeIncreaseBasePriorityPrivilege           Increase scheduling priority                                       Disabled
+SeCreatePagefilePrivilege                 Create a pagefile                                                  Disabled
+SeBackupPrivilege                         Back up files and directories                                      Disabled
+SeRestorePrivilege                        Restore files and directories                                      Disabled
+SeShutdownPrivilege                       Shut down the system                                               Disabled
+SeDebugPrivilege                          Debug programs                                                     Enabled
+SeSystemEnvironmentPrivilege              Modify firmware environment values                                 Disabled
+SeChangeNotifyPrivilege                   Bypass traverse checking                                           Enabled
+SeRemoteShutdownPrivilege                 Force shutdown from a remote system                                Disabled
+SeUndockPrivilege                         Remove computer from docking station                               Disabled
+SeManageVolumePrivilege                   Perform volume maintenance tasks                                   Disabled
+SeImpersonatePrivilege                    Impersonate a client after authentication                          Enabled
+SeCreateGlobalPrivilege                   Create global objects                                              Enabled
+SeIncreaseWorkingSetPrivilege             Increase a process working set                                     Disabled
+SeTimeZonePrivilege                       Change the time zone                                               Disabled
+SeCreateSymbolicLinkPrivilege             Create symbolic links                                              Disabled
+SeDelegateSessionUserImpersonatePrivilege Obtain an impersonation token for another user in the same session Disabled
+
 PS C:\Windows\system32 > net user evil_hacker P@ssw0rd123 /add
 The command completed successfully.
 
@@ -45,19 +77,25 @@ PS C:\Windows\system32 > curl -UseBasicParsing http://testmyids.com
 
 StatusCode        : 200
 StatusDescription : OK
-Content           : <html>...<title>INetSim default HTML page</title>...</html>
+Content           : <html>...<title>INetSim default HTML page</title>...</html>...
 
 PS C:\Windows\system32 > curl -UseBasicParsing -UserAgent "BlackSun" http://10.0.2.1
 
 StatusCode        : 200
 StatusDescription : OK
-Content           : <html>...<title>INetSim default HTML page</title>...</html>
+Content           : <html>...<title>INetSim default HTML page</title>...</html>...
 ```
 
 ### 3.1. Endpoint Detection (Sysmon via Wazuh)
-*Wazuh successfully detected the creation of a suspicious local user account (`evil_hacker`) via Sysmon Event ID 1.*
+*Wazuh successfully detected suspicious endpoint activities via Sysmon, including privilege discovery and malicious local user creation.*
 
-![Wazuh Sysmon Alert](images/wazuh_sysmon_alert_1.jpg)
+**Alert 1: Privilege Discovery Activity**
+*Detected execution of `whoami /priv` (Sysmon Event ID 1).*
+![Wazuh Sysmon Alert - Discovery](images/wazuh_sysmon_alert_2.jpg)
+
+**Alert 2: Malicious User Creation**
+*Detected the creation of a suspicious local user account (`evil_hacker`) via Sysmon Event ID 1.*
+![Wazuh Sysmon Alert - User Add](images/wazuh_sysmon_alert_1.jpg)
 
 ### 3.2. Network Detection (Suricata via Wazuh)
 *Wazuh aggregated Suricata NIDS alerts, detecting both the `testmyids.com` trigger and the suspicious `BlackSun` User-Agent hitting the INetSim sinkhole.*
